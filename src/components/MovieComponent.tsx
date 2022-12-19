@@ -15,7 +15,7 @@ const MovieComponent = ({ m }: { m: MovieInterface }) => {
       onClick={handleClick}
     >
       <img src={m.poster} alt={m.title}
-        className="w-80 h-96 rounded"
+        className="w-64 h-72 rounded"
       />
       <div className="flex flex-col px-4">
         <h1 className="text-xl text-slate-800">{m.title}</h1>

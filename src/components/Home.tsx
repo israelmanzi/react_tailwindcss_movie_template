@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { genres, movies } from "../data/_";
+// import { genres, movies } from "../data/_";
 import "../index.css";
 import MovieComponent from "./MovieComponent";
 import ChevronRight from "./ChevronRight";
@@ -28,7 +28,7 @@ export interface MovieInterface {
 }
 
 export default function Home() {
-  const [genre, setGenre] = useState<string[]>([]);
+  const [genres, setGenre] = useState<GenreInterface[]>([]);
   const [movies, setMovies] = useState<MovieInterface[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -47,50 +47,51 @@ export default function Home() {
         Authorization: "Bearer Wookie2021"
       }
     }).then(res => {
-      let genres = new Set();
+      let collected_genres: Set<string> = new Set();
 
       res.data.movies.forEach((movie: MovieInterface) => {
 
-        setMovies((movies) => [...movies, movie]);
-
+        
+        // setMovies((movies) => [...movies, movie]);
         movie.genres.forEach((genre: string) => {
-          genres.add(genre);
-
-          setGenre((genres) => [...genres, genre]);
+          collected_genres.add(genre);
+          
         });
       });
+      setMovies((movies) => [...res.data.movies]);
+      setGenre((_genres: GenreInterface[]) => [...Array.from(collected_genres).map((genre: string) => ({ category_id: genre, category_name: genre }))]);
 
       setLoading(false);
     });
   }, []);
-  
+
   if (loading) {
     return (<Loader />)
   } else {
     return (
       <div className="flex flex-col gap-10 p-2 items-center max-w-screen justify-center ">
-        {genres.map((genre: GenreInterface) => (
-        <div key={genre.category_id} className="flex flex-col px-2 py-1 justify-center max-w-full relative">
-          <h1 className="text-2xl text-slate-800">{genre.category_name}</h1>
-          <div className="grid grid-flow-col grid-rows-1   gap-2 overflow-auto test relative movies">
-            {movies.filter((m: MovieInterface) => m.genres.includes(genre.category_name)).map((m: MovieInterface) => (
-              <MovieComponent m={m} />
-            ))}
-          </div>
-          <div className="buttonsLeft absolute w-full -bottom-10 right-0 flex justify-between px-3">
-            <div className="flex items-center  p-2 hover:bg-[#00000010] rounded cursor-pointer" onClick={(e) => { scrollClick('left', e.currentTarget.parentElement?.previousElementSibling!) }}>
-              <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
-              <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
-              <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
+        {genres.map((genre: GenreInterface, i: number) => (
+          <div key={`${genre.category_id}-${i}`} className="flex flex-col px-2 py-2 justify-center max-w-full relative bg-gray-100 rounded gap-4">
+            <h1 className="text-2xl text-slate-800">{genre.category_name}</h1>
+            <div className="grid grid-flow-col grid-rows-1   gap-2 overflow-auto test relative movies">
+              {movies.filter((m: MovieInterface) => m.genres.includes(genre.category_name)).map((m: MovieInterface) => (
+                <MovieComponent m={m} />
+              ))}
             </div>
-            <div className="flex items-center  p-2 hover:bg-[#00000010] rounded cursor-pointer" onClick={(e) => { scrollClick('right', e.currentTarget.parentElement?.previousElementSibling!) }}>
-              <ChevronRight className="-ml-2 fill-orange-400" />
-              <ChevronRight className="-ml-2 fill-orange-400" />
-              <ChevronRight className="-ml-2 fill-orange-400" />
+            <div className="buttonsLeft absolute w-full -bottom-10 right-0 flex justify-between px-3">
+              <div className="flex items-center  p-2 hover:bg-[#00000010] rounded cursor-pointer" onClick={(e) => { scrollClick('left', e.currentTarget.parentElement?.previousElementSibling!) }}>
+                <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
+                <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
+                <ChevronRight className="-ml-2 fill-orange-400 rotate-180" />
+              </div>
+              <div className="flex items-center  p-2 hover:bg-[#00000010] rounded cursor-pointer" onClick={(e) => { scrollClick('right', e.currentTarget.parentElement?.previousElementSibling!) }}>
+                <ChevronRight className="-ml-2 fill-orange-400" />
+                <ChevronRight className="-ml-2 fill-orange-400" />
+                <ChevronRight className="-ml-2 fill-orange-400" />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
       </div>
     )
   }
