@@ -1,29 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { genres, movies } from "../data/_";
 import "../index.css";
 import MovieComponent from "./MovieComponent";
 import ChevronRight from "./ChevronRight";
+import axios from "axios";
+import Loader from "./Loader";
 
-interface GenreInterface {
+export interface GenreInterface {
   category_id: string;
   category_name: string;
 }
 
 export interface MovieInterface {
+  backdrop: string;
+  cast: string[];
+  classification: string;
+  director: string;
+  genres: string[];
   id: string;
-  movie_name: string;
-  description: string;
-  release_date: string;
-  genre: string;
-  thumbnail: string;
+  imdb_rating: number;
+  length: string;
+  overview: string;
+  poster: string;
+  released_on: string;
+  slug: string;
+  title: string;
 }
 
 export default function Home() {
-  const [genre, setGenres] = useState<GenreInterface[]>(genres);
-  const [movie, setMovies] = useState<MovieInterface[]>(movies);
+  const [genre, setGenre] = useState<string[]>([]);
+  const [movies, setMovies] = useState<MovieInterface[]>([]);
 
-  // console.table(genre);
-  // console.table(movie);
+  const [loading, setLoading] = useState(true);
 
   const scrollClick = (direction: string, e: HTMLElement | Element) => {
     e.scrollBy({
@@ -31,14 +39,42 @@ export default function Home() {
       behavior: "smooth",
     });
   }
-  return (
-    <div className="flex flex-col gap-10 p-2 items-center max-w-screen justify-center ">
-      {genre.map((genre) => (
+
+  useEffect(() => {
+
+    axios.get("https://wookie.codesubmit.io/movies", {
+      headers: {
+        Authorization: "Bearer Wookie2021"
+      }
+    }).then(res => {
+      let genres = new Set();
+
+      res.data.movies.forEach((movie: MovieInterface) => {
+
+        setMovies((movies) => [...movies, movie]);
+
+        movie.genres.forEach((genre: string) => {
+          genres.add(genre);
+
+          setGenre((genres) => [...genres, genre]);
+        });
+      });
+
+      setLoading(false);
+    });
+  }, []);
+  
+  if (loading) {
+    return (<Loader />)
+  } else {
+    return (
+      <div className="flex flex-col gap-10 p-2 items-center max-w-screen justify-center ">
+        {genres.map((genre: GenreInterface) => (
         <div key={genre.category_id} className="flex flex-col px-2 py-1 justify-center max-w-full relative">
           <h1 className="text-2xl text-slate-800">{genre.category_name}</h1>
-          <div className="grid grid-flow-col gap-2 overflow-auto test relative movies">
-            {movie.filter(m => m.genre === genre.category_name).map(m => (
-              <MovieComponent m={m} key={m.id} />
+          <div className="grid grid-flow-col grid-rows-1   gap-2 overflow-auto test relative movies">
+            {movies.filter((m: MovieInterface) => m.genres.includes(genre.category_name)).map((m: MovieInterface) => (
+              <MovieComponent m={m} />
             ))}
           </div>
           <div className="buttonsLeft absolute w-full -bottom-10 right-0 flex justify-between px-3">
@@ -55,7 +91,7 @@ export default function Home() {
           </div>
         </div>
       ))}
-
-    </div>
-  )
+      </div>
+    )
+  }
 }

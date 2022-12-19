@@ -1,8 +1,5 @@
-import React from 'react'
-
 export default function NavBar() {
     return (
-
         <nav className="z-10 bg-white border-gray-200 px-2 sm:px-4 py-2.5 sticky top-0 dark:bg-gray-900">
             <div className="container flex flex-wrap items-center justify-around mx-auto">
                 <a href="/" className="flex items-center">

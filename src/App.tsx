@@ -6,6 +6,12 @@ import Movie from "./components/Movie";
 import Search from "./components/Search";
 
 function App() {
+  //set on reload or refresh or path change to free localStorage
+  // window.onbeforeunload = () => {
+  //   localStorage.clear();
+  // }
+
+
   return (
     <BrowserRouter>
       <Routes>
